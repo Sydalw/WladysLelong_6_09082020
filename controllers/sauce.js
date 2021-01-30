@@ -6,7 +6,9 @@ exports.createSauce= (req, res, next) => {
   delete sauceObject._id;
   const sauce = new Sauce({
     ...sauceObject,
-    imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
+    imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`,
+    likes:0,
+    dislikes:0
   });
   sauce.save()
     .then(() => res.status(201).json({ message: 'Objet enregistré !'}))
@@ -65,4 +67,63 @@ exports.getAllSauce = (req, res, next) => {
       });
     }
   );
+};
+
+exports.likeSauce = (req, res, next) => {
+
+    const userId = req.body.userId;
+    const like = req.body.like;
+
+    Sauce.findOne({_id: req.params.id })
+        .then(sauce => {
+            const firstUserLiked = sauce.usersLiked.findIndex(element => element === userId);
+            console.log("index firstUserLiked : " + firstUserLiked);
+            const firstUserDisliked = sauce.usersDisliked.findIndex(element => element === userId);
+            console.log("index firstUserDisliked : " + firstUserDisliked);
+            console.log(like);
+            switch (like) {
+                case 1:
+                    //if (firstUserLiked < 0){
+                        sauce.likes++;
+                        if (sauce.usersLiked.length == 0) {
+                            sauce.usersLiked = [userId];
+                        } else {
+                            sauce.usersLiked.push(userId);
+                        }
+                        console.log('Vous aimez la sauce');
+//                    }else{
+//                        console.log('Vous aimez déjà la sauce');
+//                    }
+                    break;
+                case 0:
+                    if (firstUserLiked >= 0 ){
+                        var deletedUser = sauce.usersLiked.splice(firstUserLiked,1);
+                        sauce.likes--;
+                        console.log("firstUserLiked deleted " + deletedUser);
+                    }else{
+                        var deletedUser = sauce.usersDisliked.splice(firstUserDisliked,1);
+                        sauce.dislikes--;
+                        console.log("firstUserDisliked deleted " + deletedUser);
+                    }
+                    break;
+                case -1:
+                    //if (firstUserDisliked < 0){
+                        sauce.dislikes++;
+                        if (sauce.usersDisliked.length == 0) {
+                            sauce.usersDisliked = [userId];
+                        } else {
+                            sauce.usersDisliked.push(userId);
+                        }
+                        console.log("vous n'aimez pas la sauce");
+//                    }else{
+//                        console.log("vous n'aimez déjà pas la sauce");
+//                    }
+            }
+            sauce
+                .save()
+                .then(() => res.status(200).json({message: 'Choix enregistré'}))
+                .catch((error) => res.status(400).json({ error }));
+
+        })
+        .catch(error => res.status(500).json({ error }));
 };
