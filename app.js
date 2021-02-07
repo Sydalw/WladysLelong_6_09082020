@@ -5,8 +5,15 @@ const mongoose = require('mongoose');
 const sauceRoutes = require('./routes/sauce');
 const userRoutes = require('./routes/user');
 const path = require('path');
+const config = require('dotenv').config();
+//const ExpressBrute = require('express-brute');
 
-mongoose.connect('mongodb+srv://Wladmin:1002211@cluster0.mezqp.mongodb.net/<dbname>?retryWrites=true&w=majority',
+const MdbUser = process.env.Mdb_USER;
+const MdbPassword = process.env.Mdb_PASSWORD;
+
+
+
+mongoose.connect(`mongodb+srv://${MdbUser}:${MdbPassword}@cluster0.mezqp.mongodb.net/<dbname>?retryWrites=true&w=majority`,
   { useNewUrlParser: true,
     useUnifiedTopology: true })
   .then(() => console.log('Connexion à MongoDB réussie !'))
