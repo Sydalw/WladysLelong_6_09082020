@@ -11,8 +11,6 @@ const helmet = require("helmet");
 const MdbUser = process.env.Mdb_USER;
 const MdbPassword = process.env.Mdb_PASSWORD;
 
-//const rateLimiterMiddleware = require('./middleware/rateLimiterMiddleware');
-
 mongoose.connect(`mongodb+srv://${MdbUser}:${MdbPassword}@cluster0.mezqp.mongodb.net/<dbname>?retryWrites=true&w=majority`,
   { useNewUrlParser: true,
     useUnifiedTopology: true })
@@ -32,6 +30,5 @@ app.use(helmet());
 app.use('/images', express.static(path.join(__dirname, 'images')));
 app.use('/api/sauces', sauceRoutes);
 app.use('/api/auth', userRoutes);
-// app.use('/api/auth', rateLimiterMiddleware, userRoutes);
 
 module.exports = app;
